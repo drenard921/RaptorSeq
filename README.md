@@ -531,7 +531,7 @@ The main workflow intentionally keeps process calls explicit in `main.nf`. This 
 The final MultiQC step is designed as the last process in the workflow. It uses a custom YAML file:
 
 ```text
-bin/final_multiqc.yaml
+bin/final_multiqc_config.yaml
 ```
 
 and scans only the published output directory:
