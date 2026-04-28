@@ -58,30 +58,63 @@ Paired FASTQ input
 ├── template.config
 ├── modules/
 │   └── illumina/
+│       ├── amr/
+│       │   ├── amr.nf
+│       │   └── plasmidfinder.nf
+│       ├── assemble/
+│       │   └── shovill.nf
+│       ├── classify/
+│       │   ├── clockwork.nf
+│       │   ├── kraken2_reads.nf
+│       │   ├── mash.nf
+│       │   ├── mash_species.nf
+│       │   └── tb_profiler.nf
+│       ├── clean/
+│       │   └── clean.nf
+│       ├── collect/
+│       │   ├── isolate_info_clean.nf
+│       │   └── summary.nf
+│       ├── map/
+│       │   ├── bwa_mem.nf
+│       │   ├── bwa_readmetrics.nf
+│       │   └── samtools_post.nf
+│       ├── qc/
+│       │   ├── fastqc.nf
+│       │   ├── multiqc.nf
+│       │   └── quast.nf
+│       ├── trim/
+│       │   └── split_clean_fastq.nf
+│       └── typing/
+│           ├── el_gato.nf
+│           ├── mlst.nf
+│           ├── seqsero.nf
+│           └── serotype_finder.nf
 ├── bin/
-│   └── final_multiqc.yaml
-├── docs/
-│   ├── FinalPaper.pdf
-│   ├── DrenardFinalProposal.pdf
-│   ├── Pipeline.png
-│   └── ExampleNFRun.png
+│   ├── amr_python
+│   ├── donut.c
+│   ├── final_multiqc_config.yaml
+│   ├── gen_isolate_info
+│   ├── nextflow
+│   ├── nf_core_bootstrap
+│   ├── plasmid_collect
+│   └── run_mashWrapper
 ├── examples/
 │   └── Example_report.pdf
 ├── README.md
 └── .gitignore
-```
 
 ### Key files
 
 | File or folder | Purpose |
 |---|---|
 | `main.nf` | Main Nextflow workflow |
-| `template.config` | Example configuration file with placeholder paths |
-| `modules/` | Tool-specific Nextflow modules |
-| `bin/final_multiqc.yaml` | Custom MultiQC configuration used for the final report |
-| `docs/FinalPaper.pdf` | Final project paper |
-| `docs/Pipeline.png` | Pipeline architecture figure |
-| `docs/ExampleNFRun.png` | Successful example Nextflow run |
+| `template.config` | Example configuration file with placeholder database and container paths |
+| `modules/illumina/` | Illumina workflow modules grouped by analysis stage: cleaning, QC, classification, assembly, mapping, AMR, collection, trimming, and typing |
+| `bin/final_multiqc_config.yaml` | Custom MultiQC configuration used for the final report |
+| `bin/amr_python` | Helper script used by AMR-related workflow logic |
+| `bin/gen_isolate_info` | Helper script for isolate summary generation |
+| `bin/plasmid_collect` | Helper script for plasmid result collection |
+| `bin/run_mashWrapper` | Helper script for MASH/MashWrapper-related execution |
 | `examples/Example_report.pdf` | Example MultiQC report output |
 
 ---
@@ -300,7 +333,7 @@ RaptorSeq includes a final MultiQC reporting step.
 The custom MultiQC configuration is located at:
 
 ```text
-bin/final_multiqc.yaml
+bin/final_multiqc_config.yaml
 ```
 
 The final `MULTIQC` process runs after upstream collector processes complete. It scans the stable published results directory rather than Nextflow’s internal `work/` directory.
@@ -326,7 +359,7 @@ If needed, the final report can also be generated manually after the pipeline co
 
 ```bash
 multiqc results \
-  --config bin/final_multiqc.yaml \
+  --config bin/final_multiqc_config.yaml \
   --outdir results/multiqc \
   --filename multiqc_report.html \
   --force
@@ -338,7 +371,7 @@ If using Singularity / Apptainer:
 singularity shell /path/to/containers/multiqc.sif
 
 multiqc results \
-  --config bin/final_multiqc.yaml \
+  --config bin/final_multiqc_config.yaml \
   --outdir results/multiqc \
   --filename multiqc_report.html \
   --force
@@ -470,14 +503,14 @@ Then rerun MultiQC manually to inspect its log:
 
 ```bash
 multiqc results \
-  --config bin/final_multiqc.yaml \
+  --config bin/final_multiqc_config.yaml \
   --outdir results/multiqc_debug \
   --filename multiqc_report_debug.html \
   --force \
   -v
 ```
 
-If sections are still missing, the issue is likely related to filename patterns or custom content definitions in `bin/final_multiqc.yaml`.
+If sections are still missing, the issue is likely related to filename patterns or custom content definitions in `bin/final_multiqc_config.yaml`.
 
 ### Nextflow filename collision in MultiQC
 
@@ -530,29 +563,20 @@ because `work/` is an internal Nextflow cache containing hashed task folders, te
 
 ## Example Output Artifacts
 
-Example project artifacts are included in the repository:
+Example project artifacts may be included in the repository root or an `examples/` folder, depending on the release package:
 
 ```text
-docs/Pipeline.png
-docs/ExampleNFRun.png
+Pipeline.png
+ExampleNFRun.png
+FinalPaper.pdf
+DrenardFinalProposal.pdf
 examples/Example_report.pdf
-docs/FinalPaper.pdf
-docs/DrenardFinalProposal.pdf
 ```
 
 These files document the final project architecture, successful demonstration run, and example reporting output.
 
 ---
 
-## Citation
-
-This repository was developed as a final project for:
-
-```text
-AS.410.734 Practical Introduction to Metagenomics
-Johns Hopkins University
-Spring 2026
-```
 
 This work also builds on applied public health genomics pipeline development at the State Hygienic Laboratory at the University of Iowa.
 
